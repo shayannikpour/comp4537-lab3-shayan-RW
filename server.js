@@ -22,7 +22,8 @@ class ServerApp {
         const parts = path.split("/");
         const last = parts.pop() || parts.pop();
 
-        res.writeHead(200, { 'Content-Type': 'text/html', 'Access-Control-Allow-Origin': '*' });
+
+
 
         if (path === WRITE_PATH) {
 
@@ -32,12 +33,16 @@ class ServerApp {
 
                     if (err) {
 
-                        console.error(en.ERR_WRITE, err);
+                        res.writeHead(500, { 'Content-Type': 'text/html' });
+                        res.write(en.ERR_WRITE);
+                        res.end();
+
                         return;
 
                     }
                 });
 
+                res.writeHead(200, { 'Content-Type': 'text/html' });
                 res.write(en.NEW_FILE);
                 res.end();
 
@@ -48,11 +53,18 @@ class ServerApp {
                     if (err) {
                         
                         console.error(en.ERR_APPEND, err);
+
+                        res.writeHead(500, { 'Content-Type': 'text/html' });
+                        res.write(en.ERR_APPEND);
+                        res.end();
+                        
                         return;
                     
                     }
 
+                    res.writeHead(200, { 'Content-Type': 'text/html' });
                     res.write(en.TEXT_APPENDED);
+                    res.end();
 
                 });
             }
@@ -66,13 +78,15 @@ class ServerApp {
 
                     console.error(en.ERR_READ, err);
 
-                    res.write(en.FILE_NOT_FOUND);
+                    res.writeHead(404, { 'Content-Type': 'text/html' });
+                    res.write(`${last} ${en.FILE_NOT_FOUND}`);
                     res.end();
 
                     return;
 
                 }
 
+                res.writeHead(200, { 'Content-Type': 'text/html' });
                 res.write(data);
                 res.end();
 
@@ -81,6 +95,7 @@ class ServerApp {
 
         } else {
 
+            res.writeHead(404, { 'Content-Type': 'text/html' });
             res.write(en.UNKNOWN_PATH);
             res.end();
 
